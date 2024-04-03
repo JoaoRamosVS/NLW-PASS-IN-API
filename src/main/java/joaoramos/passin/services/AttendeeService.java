@@ -2,13 +2,17 @@ package joaoramos.passin.services;
 
 import joaoramos.passin.domain.attendee.Attendee;
 import joaoramos.passin.domain.attendee.exceptions.AttendeeAlreadyExistsException;
+import joaoramos.passin.domain.attendee.exceptions.AttendeeNotFoundException;
 import joaoramos.passin.domain.checkin.CheckIn;
+import joaoramos.passin.dto.attendee.AttendeeBadgeResponseDTO;
 import joaoramos.passin.dto.attendee.AttendeeDetails;
 import joaoramos.passin.dto.attendee.AttendeesListResponseDTO;
+import joaoramos.passin.dto.attendee.AttendeeBadgeDTO;
 import joaoramos.passin.repositories.AttendeeRepository;
 import joaoramos.passin.repositories.CheckInRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,4 +55,17 @@ public class AttendeeService {
 
         if(isAttendeeRegistered.isPresent()) throw new AttendeeAlreadyExistsException("Attendee is already registered in this event.");
     }
+
+    public AttendeeBadgeResponseDTO getAttendeeBadge(String attendeeId, UriComponentsBuilder uriComponentsBuilder)
+    {
+        Attendee attendee = this.attendeeRepository.findById(attendeeId).orElseThrow(() -> new AttendeeNotFoundException("Attendee not found with id" + attendeeId));
+
+        var uri = uriComponentsBuilder.path("/attendees/{attendeeId}/check-in").buildAndExpand(attendeeId).toUri().toString();
+
+        AttendeeBadgeDTO attendeeBadgeDTO = new AttendeeBadgeDTO(attendee.getName(), attendee.getEmail(), uri, attendee.getEvent().getId());
+        return new AttendeeBadgeResponseDTO(attendeeBadgeDTO);
+    }
+
+
+
 }
