@@ -1,6 +1,7 @@
 package joaoramos.passin.services;
 
 import joaoramos.passin.domain.attendee.Attendee;
+import joaoramos.passin.domain.attendee.exceptions.AttendeeAlreadyExistsException;
 import joaoramos.passin.domain.checkin.CheckIn;
 import joaoramos.passin.dto.attendee.AttendeeDetails;
 import joaoramos.passin.dto.attendee.AttendeesListResponseDTO;
@@ -36,5 +37,18 @@ public class AttendeeService {
         }).toList();
 
         return new AttendeesListResponseDTO(attendeeDetailsList);
+    }
+
+    public Attendee registerAttendee(Attendee newAttendee)
+    {
+        this.attendeeRepository.save(newAttendee);
+        return newAttendee;
+    }
+
+    public void verifyAttendeeSubscription(String email, String eventId)
+    {
+        Optional<Attendee> isAttendeeRegistered = this.attendeeRepository.findByEventIdAndEmail(eventId, email);
+
+        if(isAttendeeRegistered.isPresent()) throw new AttendeeAlreadyExistsException("Attendee is already registered in this event.");
     }
 }
