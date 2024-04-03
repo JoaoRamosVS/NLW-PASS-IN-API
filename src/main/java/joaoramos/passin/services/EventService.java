@@ -2,6 +2,7 @@ package joaoramos.passin.services;
 
 import joaoramos.passin.domain.attendee.Attendee;
 import joaoramos.passin.domain.event.Event;
+import joaoramos.passin.dto.event.EventIdDTO;
 import joaoramos.passin.dto.event.EventRequestDTO;
 import joaoramos.passin.dto.event.EventResponseDTO;
 import joaoramos.passin.repositories.AttendeeRepository;
@@ -25,7 +26,7 @@ public class EventService {
         return new EventResponseDTO(event, attendeeList.size());
     }
 
-    public void CreateEvent(EventRequestDTO eventDTO)
+    public EventIdDTO CreateEvent(EventRequestDTO eventDTO)
     {
         Event newEvent = new Event();
 
@@ -35,6 +36,8 @@ public class EventService {
         newEvent.setSlug(this.createSlug(eventDTO.title()));
 
         this.eventRepository.save(newEvent);
+
+        return new EventIdDTO(newEvent.getId());
     }
 
     private String createSlug(String text)
