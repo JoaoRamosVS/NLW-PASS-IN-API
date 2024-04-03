@@ -4,7 +4,5 @@ import lombok.Getter;
 
 import java.util.List;
 
-@Getter
-public class AttendeesListResponseDTO {
-    List<AttendeeDetails> attendees;
+public record AttendeesListResponseDTO(List<AttendeeDetails> attendees){
 }
