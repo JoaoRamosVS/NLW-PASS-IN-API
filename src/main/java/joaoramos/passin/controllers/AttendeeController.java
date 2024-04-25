@@ -31,4 +31,6 @@ public class AttendeeController {
         var uri = uriComponentsBuilder.path("/attendees/{attendeeId}/badge").buildAndExpand(attendeeId).toUri();
         return ResponseEntity.created(uri).build();
     }
+
+
 }

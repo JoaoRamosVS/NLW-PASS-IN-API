@@ -14,9 +14,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class AttendeeService {
     private final AttendeeRepository attendeeRepository;
     private final CheckInService checkInService;
 
+
     public List<Attendee> getAllAttendeesFromEvent(String eventId)
     {
         return this.attendeeRepository.findByEventId(eventId);
@@ -32,7 +36,10 @@ public class AttendeeService {
 
     public AttendeesListResponseDTO getEventsAttendee(String eventId)
     {
-        List<Attendee> attendeeList = this.getAllAttendeesFromEvent(eventId);
+        List<Attendee> attendeeList = this.getAllAttendeesFromEvent(eventId)
+                .stream()
+                .sorted(Comparator.comparing(Attendee::getCreatedAt).reversed())
+                .toList();
 
         List<AttendeeDetails> attendeeDetailsList = attendeeList.stream().map(attendee -> {
             Optional<CheckIn> checkIn = this.checkInService.getCheckIn(attendee.getId());

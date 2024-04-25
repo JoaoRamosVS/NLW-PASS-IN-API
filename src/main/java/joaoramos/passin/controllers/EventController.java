@@ -1,5 +1,7 @@
 package joaoramos.passin.controllers;
 
+import joaoramos.passin.config.ResponseHandler;
+import joaoramos.passin.dto.attendee.AttendeeDetails;
 import joaoramos.passin.dto.attendee.AttendeeIdDTO;
 import joaoramos.passin.dto.attendee.AttendeeRequestDTO;
 import joaoramos.passin.dto.attendee.AttendeesListResponseDTO;
@@ -9,14 +11,16 @@ import joaoramos.passin.dto.event.EventResponseDTO;
 import joaoramos.passin.services.AttendeeService;
 import joaoramos.passin.services.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.swing.text.html.parser.Entity;
+import java.util.List;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/api/events")
 @RequiredArgsConstructor
 public class EventController {
 
@@ -51,10 +55,26 @@ public class EventController {
     }
 
     @GetMapping("/attendees/{eventId}")
-    public ResponseEntity<AttendeesListResponseDTO> getEventAttendees(@PathVariable String eventId)
+    public ResponseEntity<Object> getEventAttendees(@PathVariable String eventId, @RequestParam(value = "pageIndex", required = false, defaultValue = "1") String pageIndex)
     {
+        int index = Integer.parseInt(pageIndex);
         AttendeesListResponseDTO attendeesListResponse = this.attendeeService.getEventsAttendee(eventId);
-        return ResponseEntity.ok(attendeesListResponse);
+        int total = attendeesListResponse.attendees().size();
+        List<AttendeeDetails> attendeeList = attendeesListResponse.attendees();
+
+        if(attendeeList.size() > 10)
+        {
+            if(index * 10 > attendeeList.size())
+            {
+                attendeeList = attendeeList.subList((index - 1) * 10, attendeeList.size());
+            }
+            else
+            {
+                attendeeList = attendeeList.subList((index - 1) * 10, index * 10);
+            }
+        }
+
+        return ResponseHandler.generateResponse(attendeeList, HttpStatus.OK, total);
     }
 
 }
