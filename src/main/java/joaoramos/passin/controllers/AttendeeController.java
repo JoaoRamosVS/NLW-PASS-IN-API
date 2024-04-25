@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("/attendees")
+@RequestMapping("/api/attendees")
 @RequiredArgsConstructor
 public class AttendeeController {
 

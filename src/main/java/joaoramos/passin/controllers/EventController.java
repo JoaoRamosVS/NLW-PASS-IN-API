@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.swing.text.html.parser.Entity;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -55,12 +56,26 @@ public class EventController {
     }
 
     @GetMapping("/attendees/{eventId}")
-    public ResponseEntity<Object> getEventAttendees(@PathVariable String eventId, @RequestParam(value = "pageIndex", required = false, defaultValue = "1") String pageIndex)
+    public ResponseEntity<Object> getEventAttendees(@PathVariable String eventId, @RequestParam(value = "pageIndex", required = false, defaultValue = "1") String pageIndex, @RequestParam(value = "query", required = false, defaultValue = "") String query)
     {
         int index = Integer.parseInt(pageIndex);
         AttendeesListResponseDTO attendeesListResponse = this.attendeeService.getEventsAttendee(eventId);
         int total = attendeesListResponse.attendees().size();
         List<AttendeeDetails> attendeeList = attendeesListResponse.attendees();
+
+        if (!query.isEmpty())
+        {
+            List<AttendeeDetails> queryAttendeeList = new ArrayList<AttendeeDetails>();
+            for (AttendeeDetails a : attendeeList)
+            {
+                if(a.name().contains(query)) {
+                    queryAttendeeList.add(a);
+                }
+            }
+            attendeeList = queryAttendeeList;
+            total = queryAttendeeList.size();
+        }
+
 
         if(attendeeList.size() > 10)
         {
